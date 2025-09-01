@@ -103,7 +103,7 @@ This project demonstrates **enterprise-grade architecture** in a simple todo app
 - [ ] Distributed tracing
 
 #### Deployment
-- [ ] CI/CD pipelines
+- [ ] CI/CD pipelines WITH SONARQUBE
 - [ ] Environment-specific configurations
 - [ ] Database migrations strategy
 - [ ] Blue/green or rolling deployments
