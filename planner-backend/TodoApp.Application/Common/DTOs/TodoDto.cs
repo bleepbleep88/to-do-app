@@ -10,6 +10,7 @@ public class TodoDto
     public TodoStatus Status { get; set; }
     public Priority Priority { get; set; }
     public DateTime? DueDate { get; set; }
+    public int Order { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public int UserId { get; set; }

@@ -32,4 +32,17 @@ public class SubtaskRepository : Repository<Subtask>, ISubtaskRepository
             .Include(s => s.Todo)
             .AnyAsync(s => s.Id == subtaskId && s.Todo.UserId == userId && !s.IsDeleted);
     }
+
+    public async Task<List<Subtask>> GetSubtasksByIdsAsync(List<int> ids, int todoId)
+    {
+        return await _dbSet
+            .Where(s => ids.Contains(s.Id) && s.TodoId == todoId && !s.IsDeleted)
+            .ToListAsync();
+    }
+
+    public async Task UpdateRangeAsync(List<Subtask> subtasks)
+    {
+        _dbSet.UpdateRange(subtasks);
+        await _context.SaveChangesAsync();
+    }
 }

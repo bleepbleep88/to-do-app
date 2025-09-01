@@ -8,4 +8,5 @@ public class CreateTodoRequest
     public string Description { get; set; } = string.Empty;
     public Priority Priority { get; set; } = Priority.Medium;
     public DateTime? DueDate { get; set; }
+    public int Order { get; set; } = 0;
 }

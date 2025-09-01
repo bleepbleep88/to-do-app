@@ -1,6 +1,8 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.Common.DTOs;
+using TodoApp.Application.Common.Interfaces;
 using TodoApp.Application.Features.Subtasks.Commands;
 using TodoApp.Application.Features.Subtasks.Queries;
 
@@ -8,15 +10,18 @@ namespace TodoApp.API.Controllers;
 
 [ApiController]
 [Route("api/todos/{todoId}/subtasks")]
+[Authorize]
 public class SubtasksController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<SubtasksController> _logger;
+    private readonly IAuthService _authService;
 
-    public SubtasksController(IMediator mediator, ILogger<SubtasksController> logger)
+    public SubtasksController(IMediator mediator, ILogger<SubtasksController> logger, IAuthService authService)
     {
         _mediator = mediator;
         _logger = logger;
+        _authService = authService;
     }
 
     [HttpGet]
@@ -54,7 +59,6 @@ public class SubtasksController : ControllerBase
                 return NotFound();
             }
 
-            // Verify the subtask belongs to the correct todo
             if (subtask.TodoId != todoId)
             {
                 _logger.LogWarning("Subtask {SubtaskId} does not belong to todo {TodoId}", id, todoId);
@@ -99,7 +103,6 @@ public class SubtasksController : ControllerBase
             _logger.LogInformation("Updating subtask {SubtaskId}", id);
             var subtask = await _mediator.Send(new UpdateSubtaskCommand(id, request));
             
-            // Verify the subtask belongs to the correct todo
             if (subtask.TodoId != todoId)
             {
                 _logger.LogWarning("Subtask {SubtaskId} does not belong to todo {TodoId}", id, todoId);
@@ -140,6 +143,29 @@ public class SubtasksController : ControllerBase
         {
             _logger.LogError(ex, "Error deleting subtask {SubtaskId}", id);
             return StatusCode(500, "An error occurred while deleting the subtask");
+        }
+    }
+
+    [HttpPost("reorder")]
+    public async Task<ActionResult> ReorderSubtasks(int todoId, [FromBody] ReorderSubtasksRequest request)
+    {
+        try
+        {
+            var userId = _authService.GetCurrentUserId();
+            _logger.LogInformation("Reordering {Count} subtasks for todo {TodoId} and user {UserId}", request.SubtaskIds.Count, todoId, userId);
+            
+            await _mediator.Send(new ReorderSubtasksCommand(userId, todoId, request));
+            return Ok();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid subtask reorder request");
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reordering subtasks for todo {TodoId}", todoId);
+            return StatusCode(500, new { error = "An error occurred while reordering subtasks" });
         }
     }
 }

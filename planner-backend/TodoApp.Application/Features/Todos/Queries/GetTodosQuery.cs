@@ -38,6 +38,7 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, IEnumerable<T
                 Status = todo.Status,
                 Priority = todo.Priority,
                 DueDate = todo.DueDate,
+                Order = todo.Order,
                 CreatedAt = todo.CreatedAt,
                 UpdatedAt = todo.UpdatedAt,
                 UserId = todo.UserId,

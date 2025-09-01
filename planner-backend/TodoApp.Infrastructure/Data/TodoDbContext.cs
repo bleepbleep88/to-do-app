@@ -44,6 +44,7 @@ public class TodoDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.Status).IsRequired();
             entity.Property(e => e.Priority).IsRequired();
+            entity.Property(e => e.Order);
             entity.Property(e => e.IsDeleted);
 
             entity.HasOne(e => e.User)

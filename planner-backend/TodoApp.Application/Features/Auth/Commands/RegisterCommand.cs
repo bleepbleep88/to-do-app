@@ -1,4 +1,5 @@
 using MediatR;
+using System.Text.RegularExpressions;
 using TodoApp.Application.Common.DTOs;
 using TodoApp.Application.Common.Interfaces;
 using TodoApp.Domain.Entities;
@@ -7,10 +8,16 @@ namespace TodoApp.Application.Features.Auth.Commands;
 
 public record RegisterCommand(RegisterRequest Request) : IRequest<AuthResponse>;
 
-public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponse>
+public partial class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponse>
 {
     private readonly IUserRepository _userRepository;
     private readonly IAuthService _authService;
+
+    [GeneratedRegex(@"[A-Z]", RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    private static partial Regex UppercaseRegex();
+
+    [GeneratedRegex(@"\d", RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    private static partial Regex DigitRegex();
 
     public RegisterCommandHandler(IUserRepository userRepository, IAuthService authService)
     {
@@ -20,6 +27,9 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
 
     public async Task<AuthResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
+        // Validate password requirements
+        ValidatePassword(request.Request.Password);
+        
         if (await _userRepository.UsernameExistsAsync(request.Request.Username))
             throw new ArgumentException("Username already exists");
 
@@ -60,5 +70,20 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
             },
             ExpiresAt = DateTime.UtcNow.AddHours(24)
         };
+    }
+
+    private static void ValidatePassword(string password)
+    {
+        if (string.IsNullOrEmpty(password))
+            throw new ArgumentException("Password is required");
+
+        if (password.Length < 8)
+            throw new ArgumentException("Password must be at least 8 characters long");
+
+        if (!UppercaseRegex().IsMatch(password))
+            throw new ArgumentException("Password must contain at least one uppercase letter");
+
+        if (!DigitRegex().IsMatch(password))
+            throw new ArgumentException("Password must contain at least one number");
     }
 }

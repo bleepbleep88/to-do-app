@@ -82,7 +82,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<TodoDbContext>();
-    context.Database.EnsureCreated();
+    await context.Database.EnsureCreatedAsync();
 }
 
-app.Run();
+await app.RunAsync();

@@ -30,6 +30,7 @@ public class UpdateTodoCommandHandler : IRequestHandler<UpdateTodoCommand, TodoD
         todo.Status = request.Request.Status;
         todo.Priority = request.Request.Priority;
         todo.DueDate = request.Request.DueDate;
+        todo.Order = request.Request.Order;
         todo.UpdatedAt = DateTime.UtcNow;
 
         await _todoRepository.UpdateAsync(todo);
@@ -42,6 +43,7 @@ public class UpdateTodoCommandHandler : IRequestHandler<UpdateTodoCommand, TodoD
             Status = todo.Status,
             Priority = todo.Priority,
             DueDate = todo.DueDate,
+            Order = todo.Order,
             CreatedAt = todo.CreatedAt,
             UpdatedAt = todo.UpdatedAt,
             UserId = todo.UserId,

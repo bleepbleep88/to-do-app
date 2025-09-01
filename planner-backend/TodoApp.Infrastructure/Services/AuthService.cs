@@ -44,8 +44,7 @@ public class AuthService : IAuthService
 
     public string HashPassword(string password)
     {
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + "salt"));
+        var hashedBytes = SHA256.HashData(Encoding.UTF8.GetBytes(password + "salt"));
         return Convert.ToBase64String(hashedBytes);
     }
 

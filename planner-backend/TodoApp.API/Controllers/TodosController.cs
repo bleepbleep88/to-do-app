@@ -1,6 +1,8 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.Common.DTOs;
+using TodoApp.Application.Common.Interfaces;
 using TodoApp.Application.Features.Todos.Commands;
 using TodoApp.Application.Features.Todos.Queries;
 
@@ -8,15 +10,18 @@ namespace PlannerAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TodosController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<TodosController> _logger;
+    private readonly IAuthService _authService;
 
-    public TodosController(IMediator mediator, ILogger<TodosController> logger)
+    public TodosController(IMediator mediator, ILogger<TodosController> logger, IAuthService authService)
     {
         _mediator = mediator;
         _logger = logger;
+        _authService = authService;
     }
 
     [HttpGet]
@@ -116,5 +121,33 @@ public class TodosController : ControllerBase
             _logger.LogError(ex, "Error deleting todo with id {TodoId}", id);
             return StatusCode(500, "An error occurred while deleting the todo");
         }
+    }
+
+    [HttpPost("reorder")]
+    public async Task<ActionResult> ReorderTodos([FromBody] ReorderTodosRequest request)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            _logger.LogInformation("Reordering {Count} todos for user {UserId}", request.TodoIds.Count, userId);
+            
+            await _mediator.Send(new ReorderTodosCommand(userId, request));
+            return Ok();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid reorder request");
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reordering todos");
+            return StatusCode(500, new { error = "An error occurred while reordering todos" });
+        }
+    }
+
+    private int GetCurrentUserId()
+    {
+        return _authService.GetCurrentUserId();
     }
 }

@@ -28,7 +28,7 @@ public class AuthMiddleware
             return;
         }
 
-        var token = ExtractTokenFromHeader(context.Request.Headers["Authorization"]);
+        var token = ExtractTokenFromHeader(context.Request.Headers.Authorization);
         
         if (string.IsNullOrEmpty(token))
         {

@@ -10,6 +10,7 @@ public class Todo : BaseEntity
     public TodoStatus Status { get; set; } = TodoStatus.Pending;
     public Priority Priority { get; set; } = Priority.Medium;
     public DateTime? DueDate { get; set; }
+    public int Order { get; set; } = 0;
     public bool IsDeleted { get; set; } = false;
     
     public int UserId { get; set; }

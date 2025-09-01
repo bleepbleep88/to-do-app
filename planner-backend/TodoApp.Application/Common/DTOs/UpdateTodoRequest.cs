@@ -9,4 +9,5 @@ public class UpdateTodoRequest
     public TodoStatus Status { get; set; }
     public Priority Priority { get; set; }
     public DateTime? DueDate { get; set; }
+    public int Order { get; set; } = 0;
 }
