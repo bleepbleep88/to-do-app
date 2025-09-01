@@ -78,6 +78,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Health check endpoint
+app.MapGet("/health", () => "Healthy");
+
 // Ensure database is created and seeded
 using (var scope = app.Services.CreateScope())
 {
