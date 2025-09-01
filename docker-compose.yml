@@ -7,14 +7,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:80"
-      - "5001:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80;https://+:443
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-    volumes:
-      - ~/.aspnet/https:/https:ro
+      - ASPNETCORE_URLS=http://+:80
     networks:
       - todoapp-network
     healthcheck:
@@ -26,7 +21,7 @@ services:
 
   frontend:
     build:
-      context: ./planner-frontend/my-app
+      context: ./planner-frontend/todo-app
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
